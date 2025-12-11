@@ -1,0 +1,44 @@
+# Anomaly Report Analyzer - Python Virtual Environment
+venv/
+
+# Node modules and dependencies
+node_modules/
+frontend/node_modules/
+frontend/build/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment variables
+.env
+.env.local
+
+# Uploads and temporary files
+uploads/
+*.log
+.pytest_cache/
+*.tmp
+*.bak
+*.old
+test_*.py
+*_test.py
+
+# Docker
+docker-compose.override.yml
+
+# OS
+Thumbs.db
+.DS_Store
