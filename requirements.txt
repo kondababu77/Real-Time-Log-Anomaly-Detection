@@ -3,6 +3,7 @@ Flask-CORS==4.0.0
 Werkzeug==2.3.0
 requests==2.31.0
 gunicorn==21.2.0
+psutil==5.9.8
 
 # AI/ML Libraries for Advanced Log Analysis
 langchain==0.1.0

@@ -60,15 +60,18 @@ class AILogAnalyzer:
         
         self.vector_store = None
         self.log_chunks = []
+        self.embedding_time = 0  # Track embedding time
     
     def process_log_file(self, log_content: str) -> Tuple[Dict, Any]:
         """
         Process log file: chunk, embed, and index with FAISS
         
         Returns:
-            - statistics dictionary
+            - statistics dictionary (includes embedding_time_ms)
             - FAISS vector store for retrieval
         """
+        import time
+        
         # Extract basic statistics first (fallback for compatibility)
         stats = self._extract_basic_stats(log_content)
         
@@ -81,11 +84,14 @@ class AILogAnalyzer:
         # 3. Vector Retrieval Model: FAISS
         # Create FAISS index from embeddings for O(1) similarity search
         if self.log_chunks:
+            embedding_start = time.time()
             self.vector_store = FAISS.from_documents(
                 self.log_chunks,
                 self.embeddings
             )
-            print(f"✅ Indexed {len(self.log_chunks)} chunks in FAISS vector store")
+            self.embedding_time = (time.time() - embedding_start) * 1000
+            stats['embedding_time_ms'] = self.embedding_time
+            print(f"✅ Indexed {len(self.log_chunks)} chunks in FAISS vector store ({self.embedding_time:.2f}ms)")
         
         return stats, self.vector_store
     
@@ -98,13 +104,17 @@ class AILogAnalyzer:
             top_k: Number of relevant chunks to retrieve (default: 4)
         
         Returns:
-            Analysis results with root cause, evidence, and recommendations
+            Analysis results with root cause, evidence, recommendations, and timing metadata
         """
+        import time
+        
         if not self.vector_store:
             raise ValueError("No vector store available. Call process_log_file() first.")
         
-        # Retrieve top 4 most relevant log chunks using FAISS similarity search
+        # Track retrieval time
+        retrieval_start = time.time()
         relevant_docs = self.vector_store.similarity_search(question, k=top_k)
+        retrieval_time = (time.time() - retrieval_start) * 1000
         
         # Combine relevant chunks into context
         context = "\n\n".join([doc.page_content for doc in relevant_docs])
@@ -127,11 +137,20 @@ Provide a structured analysis with:
 
 Be factual and evidence-based. Do not hallucinate information not present in the logs."""
 
-        # Get LLM response with low temperature for factual accuracy
+        # Track LLM generation time
+        llm_start = time.time()
         response = self.llm.invoke(prompt)
+        llm_time = (time.time() - llm_start) * 1000
         
         # Parse LLM response
         analysis = self._parse_llm_response(response.content, relevant_docs)
+        
+        # Add timing metadata
+        analysis['timing_metadata'] = {
+            'retrieval_time_ms': retrieval_time,
+            'llm_time_ms': llm_time,
+            'total_time_ms': retrieval_time + llm_time
+        }
         
         return analysis
     

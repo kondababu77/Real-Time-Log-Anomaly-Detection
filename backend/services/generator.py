@@ -237,15 +237,23 @@ class ReportGenerator:
         # Step 3: Try AI-powered analysis if enabled
         use_ai_enhancement = use_ai
         ai_analysis = None
+        ai_metadata = {'embedding_time': 0, 'retrieval_time': 0, 'llm_time': 0}
+        
         if use_ai_enhancement:
             ai_analyzer = get_ai_analyzer()
             if ai_analyzer:
                 try:
                     # Process log file with AI models
                     ai_stats, vector_store = ai_analyzer.process_log_file(file_content)
+                    ai_metadata['embedding_time'] = ai_stats.get('embedding_time_ms', 0)
                     
                     # Get AI-powered analysis
                     ai_analysis = ai_analyzer.analyze_with_llm(question, top_k=4)
+                    
+                    # Extract timing from AI analysis
+                    if 'timing_metadata' in ai_analysis:
+                        ai_metadata['retrieval_time'] = ai_analysis['timing_metadata'].get('retrieval_time_ms', 0)
+                        ai_metadata['llm_time'] = ai_analysis['timing_metadata'].get('llm_time_ms', 0)
                     
                     # Merge AI insights if available
                     if ai_analysis:
@@ -270,19 +278,19 @@ class ReportGenerator:
                 unique_sequence, sequence_id, question, file_hash,
                 stats, severity, confidence_score, root_cause_explanation,
                 category, immediate_actions, evidence_chunks,
-                analysis_result, automated_insights
+                analysis_result, automated_insights, ai_metadata
             )
         else:
             # Advanced analyzer path (no AI)
             return ReportGenerator._build_advanced_report(
                 unique_sequence, sequence_id, question, file_hash,
                 stats, severity, confidence_score,
-                analysis_result, automated_insights
+                analysis_result, automated_insights, ai_metadata
             )
     
     @staticmethod
     def _build_advanced_report(unique_sequence, sequence_id, question, file_hash,
-                              stats, severity, confidence, analysis_result, automated_insights):
+                              stats, severity, confidence, analysis_result, automated_insights, ai_metadata=None):
         """
         Build report using Advanced Analyzer with automated insight generation.
         Highlights: Adaptive optimization, continual learning, noise robustness.
@@ -417,7 +425,8 @@ class ReportGenerator:
                                 f"Severity: {severity}\n"
                                 f"Confidence: {confidence:.1f}%\n"
                                 f"Learning State: {automated_insights['continual_learning_status'].get('learning_state', 'Active')}",
-            "confidence_score": round(confidence, 1)
+            "confidence_score": round(confidence, 1),
+            "ai_metadata": ai_metadata if ai_metadata else {'embedding_time': 0, 'retrieval_time': 0, 'llm_time': 0}
         }
     
     @staticmethod
@@ -439,12 +448,12 @@ class ReportGenerator:
     @staticmethod
     def _build_advanced_ai_report(unique_sequence, sequence_id, question, file_hash, stats, 
                                  severity, confidence, root_cause_explanation, category, 
-                                 immediate_actions, evidence_chunks, analysis_result, automated_insights):
+                                 immediate_actions, evidence_chunks, analysis_result, automated_insights, ai_metadata=None):
         """Build report combining AI analysis with advanced features"""
         # This combines AI insights with adaptive learning insights
         base_report = ReportGenerator._build_advanced_report(
             unique_sequence, sequence_id, question, file_hash,
-            stats, severity, confidence, analysis_result, automated_insights
+            stats, severity, confidence, analysis_result, automated_insights, ai_metadata
         )
         
         # Enhance with AI-specific fields
