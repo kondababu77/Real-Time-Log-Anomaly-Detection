@@ -93,14 +93,14 @@ def register_analysis_routes(app, metrics, upload_folder):
                 reports.append(report)
                 question_time = (time.time() - question_start) * 1000
                 
-                # Extract metrics from report
-                if 'ai_metadata' in report:
+                # Extract metrics from report (safely handle missing ai_metadata)
+                if 'ai_metadata' in report and report['ai_metadata']:
                     ai_meta = report['ai_metadata']
-                    if 'embedding_time' in ai_meta:
+                    if 'embedding_time' in ai_meta and ai_meta['embedding_time'] > 0:
                         embedding_times.append(ai_meta['embedding_time'])
-                    if 'retrieval_time' in ai_meta:
+                    if 'retrieval_time' in ai_meta and ai_meta['retrieval_time'] > 0:
                         retrieval_times.append(ai_meta['retrieval_time'])
-                    if 'llm_time' in ai_meta:
+                    if 'llm_time' in ai_meta and ai_meta['llm_time'] > 0:
                         llm_times.append(ai_meta['llm_time'])
                 
                 # Count anomalies by type

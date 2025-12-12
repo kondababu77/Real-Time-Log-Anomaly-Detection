@@ -41,6 +41,16 @@ class MetricsPrinter:
         
         MetricsPrinter.print_header("🔍 REAL-TIME PERFORMANCE METRICS")
         
+        # Check if AI features are available
+        has_ai_metrics = (metrics_data.get('embedding_metrics') or 
+                         metrics_data.get('retrieval_metrics') or 
+                         metrics_data.get('llm_metrics'))
+        
+        if not has_ai_metrics:
+            print("\n⚠️  Note: AI features not available - using standard analysis")
+            print("   To enable AI metrics, install: pip install langchain-nvidia-ai-endpoints langchain-community faiss-cpu")
+            print("   And set NVIDIA_API_KEY in your .env file\n")
+        
         # File Information
         if 'file_info' in metrics_data:
             MetricsPrinter.print_section("📄 File Information")
@@ -51,7 +61,7 @@ class MetricsPrinter:
             MetricsPrinter.print_metric("File Hash", file_info.get('hash', 'N/A'))
         
         # 1. Embedding Model Metrics
-        if 'embedding_metrics' in metrics_data:
+        if 'embedding_metrics' in metrics_data and metrics_data['embedding_metrics']:
             MetricsPrinter.print_section("🔢 Embedding Model Metrics (nv-embedqa-e5-v5)")
             emb = metrics_data['embedding_metrics']
             MetricsPrinter.print_metric("Embedding Dimension", emb.get('dimension', 1024))
@@ -61,7 +71,7 @@ class MetricsPrinter:
             MetricsPrinter.print_metric("Total Embedding Time", round(emb.get('total_time_ms', 0), 2), "ms")
         
         # 2. Retrieval System Metrics
-        if 'retrieval_metrics' in metrics_data:
+        if 'retrieval_metrics' in metrics_data and metrics_data['retrieval_metrics']:
             MetricsPrinter.print_section("🔎 Retrieval System Metrics (FAISS)")
             ret = metrics_data['retrieval_metrics']
             MetricsPrinter.print_metric("Index Type", ret.get('index_type', 'IndexFlatIP'))
@@ -72,7 +82,7 @@ class MetricsPrinter:
             MetricsPrinter.print_metric("Total Retrieval Time", round(ret.get('total_retrieval_time_ms', 0), 2), "ms")
         
         # 3. LLM Reasoning Metrics
-        if 'llm_metrics' in metrics_data:
+        if 'llm_metrics' in metrics_data and metrics_data['llm_metrics']:
             MetricsPrinter.print_section("🤖 LLM Reasoning Metrics (Llama 3.1-70B-Instruct)")
             llm = metrics_data['llm_metrics']
             MetricsPrinter.print_metric("Model", llm.get('model', 'meta/llama-3.1-70b-instruct'))
@@ -95,7 +105,7 @@ class MetricsPrinter:
             MetricsPrinter.print_metric("Security Anomalies", det.get('security_anomalies', 0))
         
         # 5. Root Cause Analysis (RCA) Metrics
-        if 'rca_metrics' in metrics_data:
+        if 'rca_metrics' in metrics_data and metrics_data['rca_metrics']:
             MetricsPrinter.print_section("🔍 Root Cause Analysis (RCA) Metrics")
             rca = metrics_data['rca_metrics']
             MetricsPrinter.print_metric("RCA Success Rate", f"{round(rca.get('success_rate', 0) * 100, 1)}%")
