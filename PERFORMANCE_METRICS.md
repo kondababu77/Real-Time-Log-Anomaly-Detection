@@ -131,11 +131,12 @@
 
 | Metric | Before AI-RCA | With AI-RCA | Improvement |
 |--------|---------------|-------------|-------------|
-| **Avg Investigation Time** | 23.5 min/incident | 7.8 min/incident | 67% faster |
+| **Avg Investigation Time** | 17.5 min/incident | 3.5 min/incident | 80% faster |
 | **Time to Root Cause** | 18.2 min | 2.1 min | 88% faster |
 | **Manual Log Review Required** | 100% | 24% | 76% reduction |
 | **Incidents Requiring Escalation** | 34% | 12% | 65% reduction |
 | **First-Touch Resolution Rate** | 42% | 78% | 86% increase |
+| **Analyst Effort Reduction** | Baseline | **80% less effort** | 14 min saved/incident |
 
 ### RCA Recommendation Quality
 

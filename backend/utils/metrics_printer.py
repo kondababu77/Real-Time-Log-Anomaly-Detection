@@ -108,12 +108,28 @@ class MetricsPrinter:
         if 'rca_metrics' in metrics_data and metrics_data['rca_metrics']:
             MetricsPrinter.print_section("🔍 Root Cause Analysis (RCA) Metrics")
             rca = metrics_data['rca_metrics']
+            
+            # Core RCA Metrics
             MetricsPrinter.print_metric("RCA Success Rate", f"{round(rca.get('success_rate', 0) * 100, 1)}%")
-            MetricsPrinter.print_metric("Avg Correlation Chain Length", round(rca.get('avg_chain_length', 0), 1), "events")
-            MetricsPrinter.print_metric("Recommendations Generated", rca.get('recommendations_count', 0))
-            MetricsPrinter.print_metric("Coverage of Recommendations", f"{round(rca.get('recommendation_coverage', 0) * 100, 1)}%")
-            MetricsPrinter.print_metric("Avg RCA Generation Time", round(rca.get('avg_generation_time_ms', 0), 2), "ms")
-            MetricsPrinter.print_metric("Total Correlated Events", rca.get('total_correlated_events', 0))
+            print(f"    └─ Reports with plausible RCA: {rca.get('reports_with_rca', 0)}/{rca.get('total_reports_analyzed', 0)}")
+            
+            MetricsPrinter.print_metric("Avg Correlation Chain Length", round(rca.get('avg_chain_length', 0), 1), "events/anomaly")
+            print(f"    └─ How deep event graph analysis goes")
+            
+            MetricsPrinter.print_metric("Recommendation Coverage", f"{round(rca.get('recommendation_coverage', 0) * 100, 1)}%")
+            print(f"    └─ {rca.get('recommendations_count', 0)} reports with concrete mitigation steps")
+            
+            # Analyst Effort Reduction
+            print(f"\n  💡 Analyst Effort Reduction:")
+            MetricsPrinter.print_metric("  Estimated Effort Reduction", f"{round(rca.get('analyst_effort_reduction_pct', 0), 1)}%")
+            MetricsPrinter.print_metric("  Baseline Investigation Time", round(rca.get('baseline_investigation_time_min', 0), 1), "min/incident")
+            MetricsPrinter.print_metric("  Automated Investigation Time", round(rca.get('automated_investigation_time_min', 0), 1), "min/incident")
+            MetricsPrinter.print_metric("  Time Saved per Incident", round(rca.get('time_saved_per_incident_min', 0), 1), "min")
+            
+            # Additional Details
+            print(f"\n  📊 RCA Details:")
+            MetricsPrinter.print_metric("  Total Correlated Events", rca.get('total_correlated_events', 0))
+            MetricsPrinter.print_metric("  Avg RCA Generation Time", round(rca.get('avg_generation_time_ms', 0), 2), "ms")
         
         # 6. End-to-End System Metrics
         if 'system_metrics' in metrics_data:
